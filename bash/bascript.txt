@@ -1,0 +1,50 @@
+#!/bin/bash
+#begin user generating
+ls -la /var/cpanel/users| awk '{print $9}'|grep -v list|  cut -d . -f1 > activeusers.txt
+sed -i '1,3d' *txt
+#ls -la /var/cpanel/suspended| awk '{print $9}'|  cut -d . -f1 > suspendedusers.txt
+#comm suspendedusers.txt activeusers.txt -3 > realusers.txt
+#rm -rf suspendedusers.txt activeusers.txt
+#end user generating
+
+#begin search
+for user in `cat activeusers.txt`;
+do
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "header.inc.php"`;do grep "DOLPHIN" $i > /dev/null && dolph=$(($dolph+1));
+        done;
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "configuration.php"`;do grep "log_path" $i  > /dev/null  && jml=$(($jml+1));
+        done;
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "wp-config.php"`;do wp=$(($wp+1));
+        done;
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "local.xml"`;do mage=$(($mage+1));
+        done;
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "config.php"`;do grep "DIR_TEMPLATE" $i  > /dev/null  && openc=$(($openc+1));
+        done;
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "settings.inc.php"`;do presta=$(($presta+1));
+        done;
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "dbconnect.php"`;do clib=$(($clib+1));
+        done;
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "settings.php"`;do grep "Drupal" $i  > /dev/null && drup=$(($drup+1));
+        done;
+        for i in `find /home/$user/public_html -maxdepth 3 -type f -name "draftfile.php"`;do mdl=$(($mdl+1));
+        done;
+
+
+done
+#end search
+
+#begin output
+echo "+-----------------------------------+"
+echo "|~~~~~Counting Opensource apps!~~~~~|"
+echo "+-----------------------------------+"
+echo "| -> Dolphin apps: $dolph"
+echo "| -> Wodpress apps: $wp"
+echo "| -> Joomla apps: $jml"
+echo "| -> OpenCart apps: $openc"
+echo "| -> Magento apps: $mage"
+echo "| -> Prestashop apps: $presta"
+echo "| -> ClipBucket apps: $clib"
+echo "| -> Drupal apps: $drup"
+echo "| -> Moodle apps: $mdl"
+echo "+------------------------------------"
+#end output
