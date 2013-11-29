@@ -1,0 +1,50 @@
+sub check()
+{
+
+}
+
+BEGIN {
+    unshift @INC, '/usr/local/cpanel';
+    }
+
+    use Cpanel::LiveAPI ();
+    use Data::Dumper    ();
+
+    my $cpanel = Cpanel::LiveAPI->new();
+print "Content-type: text/html\r\n\r\n";
+
+#Begin CONFIG - Do not Edit the code above
+$username = $cpanel->cpanelprint('$user');
+$pid_file = "/home/$username/etc/memcached.pid";
+$db ="memcached_data";
+$user = "memcached_user";
+$pass = "z2d55bcab";
+$host="localhost";
+#End CONFIG - Do not Edit the code bellow
+use DBI;
+
+$dbh = DBI->connect("DBI:mysql:$db:$host", $user, $pass);
+
+$query_select_working="SELECT * FROM memcached WHERE Username = '$username'";
+$sqlQuery_select = $dbh->prepare($query_select_working) or die "Can't prepare $query_select_working: $dbh->errstr\n";
+$rv = $sqlQuery_select->execute or die "can't execute the query: $sqlQuery_select->errstr";
+$rows=$sqlQuery_select->rows;
+        if($rows != 0){
+                while (@row_port= $sqlQuery_select->fetchrow_array()){
+                $query_insert_buffer_port="INSERT INTO port (Port) VALUES ($row_port[3])";
+                $sqlQuery_insert_buffer = $dbh->prepare($query_insert_buffer_port) or die "Can't prepare $query_insert_buffer_port: $dbh->errstr\n";
+                $rv = $sqlQuery_insert_buffer->execute or die "can't execute the query: $sqlQuery_insert_buffer->errstr";
+  $query_delete = "DELETE FROM memcached WHERE Username = '$username'";
+                $sqlQuery_delete = $dbh->prepare($query_delete) or die "Can't prepare $query_delete: $dbh->errstr\n";
+                $rv = $sqlQuery_delete->execute or die "can't execute the query: $sqlQuery_delete->errstr";
+                print '<meta http-equiv="refresh" content="0; url=memcached/index.php">';
+                }
+
+                open(my $file, '<', $pid_file)
+                or die "Unable to open file, $!";
+                while(<$file>) {
+                system("kill $_");
+                }
+        }else{
+         print '<meta http-equiv="refresh" content="0; url=memcached/index.php?status=noinstance">';
+        }

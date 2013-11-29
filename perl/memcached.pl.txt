@@ -1,0 +1,80 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+
+sub check()
+{
+
+}
+
+BEGIN {
+    unshift @INC, '/usr/local/cpanel';
+    }
+
+    use Cpanel::LiveAPI ();
+    use Data::Dumper    ();
+
+    my $cpanel = Cpanel::LiveAPI->new();
+print "Content-type: text/html\r\n\r\n";
+## --------------- Declarations For Insert or Select statement on the database ------------------
+$username = $cpanel->cpanelprint('$user'); #username for the memcached (the cpanel user executing the process)
+$password; # Random generated string
+$port;
+
+for (0..7) { $password .= chr( int(rand(25) + 65) ); }
+
+##---------------- End of declarations ----------------------
+use DBI;
+
+# mysql user database name
+$db ="memcached_data";
+## mysql database user name
+$user = "memcached_user";
+
+## mysql database password
+$pass = "z2d55bcab";
+
+## user hostname : This should be "localhost" but it can be diffrent too
+$host="localhost";
+
+$query_existing_port = "SELECT * FROM memcached WHERE Username ='$username'";
+
+$dbh = DBI->connect("DBI:mysql:$db:$host", $user, $pass);
+
+$sqlQuery_existing = $dbh->prepare($query_existing_port) or die "Can't prepare $query_existing_port: $dbh->errstr\n";
+$rv = $sqlQuery_existing->execute or die "can't execute the query: $sqlQuery_existing->errstr";
+$rows = $sqlQuery_existing->rows;
+        if ($rows == 0){
+        print "[!] No instances for User: <b>$username</b> [!]";
+                $query_port_table = "SELECT MAX(Port) FROM port";
+                $sqlQuery_port_table = $dbh->prepare($query_port_table) or die "Can't prepare $query_port_table: $dbh->errstr\n";
+                $rd = $sqlQuery_port_table->execute or die "can't execute the query: $sqlQuery_port_table->errstr";
+                while (@row_port= $sqlQuery_port_table->fetchrow_array()) {
+                        print "<br> -> Rows on `SELECT MAX(Port) FROM port`: $rows1 ; <br>Port returner from database: $row_port[0]";
+                                if($row_port[0]==0){
+                                $query_port_user = "SELECT MAX(Port) FROM memcached";
+                                $sqlQuery_port_user = $dbh->prepare($query_port_user) or die "Can't prepare $query_port_user: $dbh->errstr\n";
+                                $rd = $sqlQuery_port_user->execute or die "can't execute the query: $sqlQuery_port_user->errstr";
+                                        while (@row_port_user= $sqlQuery_port_user->fetchrow_array()) {
+                                        $port=$row_port_user[0]+1;
+                                        }
+                                }else{
+                                $port=$row_port[0];
+                                print "<br>There is a free Port: $port <br> -> Rows on `SELECT MAX(Port) FROM memcached`:  $rows1";      
+                                $query_delete_port = "DELETE FROM port WHERE Port = $port";
+                                $sqlQuery_delete = $dbh->prepare($query_delete_port)or die "Can't prepare $query_delete_port: $dbh->errstr\n";
+                                $rf = $sqlQuery_delete->execute or die "can't execute the query: $sqlQuery_delete->errstr";
+                                }
+       print '<meta http-equiv="refresh" content="0; url=memcached/index.php">';
+                }
+                $query_insert = "INSERT INTO memcached (Username, Password, Port) VALUES ('$username','$password', $port)";
+                $sqlQuery_insert = $dbh->prepare($query_insert)or die "Can't prepare $query_insert: $dbh->errstr\n";
+  $sqlQuery_insert = $dbh->prepare($query_insert)or die "Can't prepare $query_insert: $dbh->errstr\n";
+                $re = $sqlQuery_insert->execute or die "can't execute the query: $sqlQuery_insert->errstr";
+                my $shell_command = "memcached -d -p$port -P /home/$username/etc/memcached.pid";
+                system($shell_command);
+        }else{
+print 'Ima instanciq za usera';
+       print '<meta http-equiv="refresh" content="0; url=memcached/index.php">';
+        }
+$dbh->finish;
+$dbh->disconnect();
+exit(0);
