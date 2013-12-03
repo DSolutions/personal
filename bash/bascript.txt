@@ -2,9 +2,9 @@
 #begin user generating
 ls -la /var/cpanel/users| awk '{print $9}'|grep -v list|  cut -d . -f1 > activeusers.txt
 sed -i '1,3d' *txt
-#ls -la /var/cpanel/suspended| awk '{print $9}'|  cut -d . -f1 > suspendedusers.txt
-#comm suspendedusers.txt activeusers.txt -3 > realusers.txt
-#rm -rf suspendedusers.txt activeusers.txt
+ls -la /var/cpanel/suspended| awk '{print $9}'|  cut -d . -f1 > suspendedusers.txt
+comm suspendedusers.txt activeusers.txt -3 > realusers.txt
+rm -rf suspendedusers.txt activeusers.txt
 #end user generating
 
 #begin search
